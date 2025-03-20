@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { signup } from "./authService"; 
-import InputField from "../../../components/inputField"; // ✅ Import InputField Component
-import Button from "../../../components/button";// ✅ Import Button Component
+import { signup } from "./authService";
+import InputField from "../../../components/inputField";
+import Button from "../../../components/button";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,7 @@ const SignupForm = () => {
     role: "",
     rollNo: "",
     password: "",
+    image: null, // Add image to state
   });
 
   const { login } = useAuth();
@@ -23,11 +24,18 @@ const SignupForm = () => {
   const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+    const { id, value, files } = e.target;
+    if (id === "image") {
+      setFormData((prev) => ({
+        ...prev,
+        image: files[0], // Store the file object
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [id]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -37,8 +45,8 @@ const SignupForm = () => {
     setSuccess("");
 
     try {
-      const { name, email, contact, nic, role, rollNo, password } = formData;
-      const requestData = { name, email, contact, nic, role, password };
+      const { name, email, contact, nic, role, rollNo, password, image } = formData;
+      const requestData = { name, email, contact, nic, role, password, image };
       if (role === "student") requestData.rollNo = rollNo;
 
       await signup(requestData);
@@ -60,31 +68,87 @@ const SignupForm = () => {
         <form onSubmit={handleSubmit}>
           <div className="row g-3">
             <div className="col-md-6">
-              <InputField id="name" type="text" placeholder="Enter your name" value={formData.name} onChange={handleChange} />
+              <InputField
+                id="name"
+                type="text"
+                placeholder="Enter your name"
+                value={formData.name}
+                onChange={handleChange}
+              />
             </div>
             <div className="col-md-6">
-              <InputField id="email" type="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} />
+              <InputField
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleChange}
+              />
             </div>
             <div className="col-md-6">
-              <InputField id="contact" type="text" placeholder="Enter your contact number" value={formData.contact} onChange={handleChange} />
+              <InputField
+                id="contact"
+                type="text"
+                placeholder="Enter your contact number"
+                value={formData.contact}
+                onChange={handleChange}
+              />
             </div>
             <div className="col-md-6">
-              <InputField id="nic" type="text" placeholder="Enter your CNIC" value={formData.nic} onChange={handleChange} />
+              <InputField
+                id="nic"
+                type="text"
+                placeholder="Enter your CNIC"
+                value={formData.nic}
+                onChange={handleChange}
+              />
             </div>
             <div className="col-md-6">
-              <select id="role" className="form-select input-field" value={formData.role} onChange={handleChange} required>
-                <option value="" disabled>Select role</option>
+              <select
+                id="role"
+                className="form-select input-field"
+                value={formData.role}
+                onChange={handleChange}
+                required
+              >
+                <option value="" disabled>
+                  Select role
+                </option>
                 <option value="supervisor">Supervisor</option>
                 <option value="student">Student</option>
               </select>
             </div>
             {formData.role === "student" && (
               <div className="col-md-6">
-                <InputField id="rollNo" type="text" placeholder="Enter your roll number" value={formData.rollNo} onChange={handleChange} />
+                <InputField
+                  id="rollNo"
+                  type="text"
+                  placeholder="Enter your roll number"
+                  value={formData.rollNo}
+                  onChange={handleChange}
+                />
               </div>
             )}
             <div className="col-md-6">
-              <InputField id="password" type="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} />
+              <InputField
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="col-md-6">
+              <label htmlFor="image" className="form-label">
+                Upload Image
+              </label>
+              <input
+                id="image"
+                type="file"
+                className="form-control"
+                onChange={handleChange}
+                accept="image/*"
+              />
             </div>
           </div>
           <div className="d-grid mt-4">
@@ -92,7 +156,9 @@ const SignupForm = () => {
           </div>
           <div className="text-center mt-3 mb-3">
             <span>Have an Account? </span>
-            <Link to="/login" className="text-success text-decoration-none">Sign In</Link>
+            <Link to="/login" className="text-success text-decoration-none">
+              Sign In
+            </Link>
           </div>
         </form>
       </div>
